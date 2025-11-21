@@ -1,0 +1,68 @@
+# Tests
+tests/
+*.test.js
+jest.config.js
+coverage/
+
+# Development
+.github/
+.husky/
+.vscode/
+.idea/
+
+# Documentation (keep README, LICENSE, CHANGELOG)
+docs/
+CONTRIBUTING.md
+ARCHITECTURE.md
+
+# Build artifacts
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Temporary files
+*.tmp
+*.swp
+*.swo
+*~
+
+# Environment
+.env
+.env.local
+.env.test
+.env.production
+
+# PM Kit specific
+.claude/
+CLAUDE.md
+.mcp.json
+outputs/
+.pm-kit/
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# CI/CD
+.travis.yml
+.circleci/
+.gitlab-ci.yml
+
+# Package managers
+yarn.lock
+pnpm-lock.yaml
+package-lock.json
+
+# Editor
+.DS_Store
+Thumbs.db
+
+# Keep these files for npm
+!README.md
+!LICENSE
+!CHANGELOG.md
+!INSTALLATION.md
+!COMMANDS.md

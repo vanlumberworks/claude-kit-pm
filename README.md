@@ -2,6 +2,35 @@
 
 A comprehensive, AI-enhanced product management system implementing Long Chain-of-Thought methodology for systematic problem-solving, strategic planning, and product development.
 
+## 🚀 Quick Start (5 minutes)
+
+```bash
+# Install the CLI
+npm install -g pm-kit-cli
+
+# Initialize in your project
+cd your-project
+pm-kit init
+
+# Start using PM workflows
+claude
+/prd  # Create your first PRD
+```
+
+**New to ClaudeKit PM?** → Read the [**Getting Started Guide**](./GETTING_STARTED.md) for a complete walkthrough.
+
+**One-Line Install**:
+```bash
+curl -fsSL https://raw.githubusercontent.com/your-org/pm-kit-cli/main/install.sh | bash
+```
+
+## 📚 Documentation
+
+- **[Getting Started](./GETTING_STARTED.md)** - Complete setup guide with examples (15 min read)
+- **[Installation Guide](./INSTALLATION.md)** - Detailed installation instructions
+- **[Commands Reference](./COMMANDS.md)** - All CLI commands explained
+- **[Contributing](./CONTRIBUTING.md)** - How to contribute to the project
+
 ## Overview
 
 ClaudeKit PM is a File System As Context framework that enables Product Managers to leverage AI for complex reasoning chains, systematic validation, and data-driven decision-making. It provides structured workflows, specialized agents, and comprehensive templates for all aspects of product management.
