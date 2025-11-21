@@ -17,7 +17,7 @@ claude
 /prd  # Create your first PRD
 ```
 
-**New to ClaudeKit PM?** → Read the [**Getting Started Guide**](./GETTING_STARTED.md) for a complete walkthrough.
+**New to ClaudeKit PM?** → Read the [**Getting Started Guide**](./docs/guides/GETTING_STARTED.md) for a complete walkthrough.
 
 **One-Line Install**:
 ```bash
@@ -26,10 +26,10 @@ curl -fsSL https://raw.githubusercontent.com/your-org/pm-kit-cli/main/install.sh
 
 ## 📚 Documentation
 
-- **[Getting Started](./GETTING_STARTED.md)** - Complete setup guide with examples (15 min read)
-- **[Installation Guide](./INSTALLATION.md)** - Detailed installation instructions
-- **[Commands Reference](./COMMANDS.md)** - All CLI commands explained
-- **[Contributing](./CONTRIBUTING.md)** - How to contribute to the project
+- **[Getting Started](./docs/guides/GETTING_STARTED.md)** - Complete setup guide with examples (15 min read)
+- **[Installation Guide](./docs/guides/INSTALLATION.md)** - Detailed installation instructions
+- **[Commands Reference](./docs/reference/COMMANDS.md)** - All CLI commands explained
+- **[Contributing](./docs/development/CONTRIBUTING.md)** - How to contribute to the project
 
 ## Overview
 

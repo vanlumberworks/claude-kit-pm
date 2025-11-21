@@ -5,7 +5,8 @@
       "Bash(chmod:*)",
       "Bash(node bin/pm-kit.js:*)",
       "Bash(pnpm install:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(git mv:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

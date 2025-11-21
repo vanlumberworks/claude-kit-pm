@@ -461,4 +461,4 @@ After successful installation, you should see:
 
 ---
 
-**Questions?** See [GETTING_STARTED.md](../GETTING_STARTED.md) for detailed guide.
+**Questions?** See [GETTING_STARTED.md](GETTING_STARTED.md) for detailed guide.

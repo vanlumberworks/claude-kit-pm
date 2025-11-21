@@ -40,12 +40,8 @@ claude-kit-pm/
 ├── learning/                     # Educational content
 ├── workspace/                    # Workspace examples
 ├── CLAUDE.md                     # This file - primary routing
-├── docs/                         # Organized documentation
-│   ├── guides/                   # User-facing guides
-│   ├── reference/                # Technical references (ARCHITECTURE.md, COMMANDS.md)
-│   ├── development/              # Developer resources (USER_WORKFLOW.md, CONTRIBUTING.md)
-│   ├── operations/               # Operational docs (SECURITY.md, CHANGELOG.md)
-│   └── status/                   # Project status documents
+├── ARCHITECTURE.md               # Detailed technical architecture
+├── USER_WORKFLOW.md              # End-user workflow documentation
 └── package.json                  # CLI package definition (not yet implemented)
 ```
 
@@ -170,7 +166,7 @@ When implementing the CLI tool, create:
 - `lib/commands/doctor.js` - Run diagnostics and health checks
 - `lib/utils/` - GitHub integration, file management, configuration
 
-See `docs/reference/ARCHITECTURE.md` for detailed implementation specifications.
+See `ARCHITECTURE.md` for detailed implementation specifications.
 
 ## Key Design Principles
 
@@ -194,9 +190,8 @@ Pre-built templates are available in `./templates/`:
 
 ## Important References
 
-- **docs/reference/ARCHITECTURE.md** - Detailed technical architecture for CLI implementation
-- **docs/development/USER_WORKFLOW.md** - End-user workflow and installation guide
-- **docs/README.md** - Documentation index and navigation
+- **ARCHITECTURE.md** - Detailed technical architecture for CLI implementation
+- **USER_WORKFLOW.md** - End-user workflow and installation guide
 - **README.md** - Comprehensive framework overview and methodology
 
 ## Common Workflows
@@ -221,4 +216,3 @@ Pre-built templates are available in `./templates/`:
 ---
 
 **For detailed methodology and best practices**, refer to the extensive documentation in README.md and individual workflow files in `.claude/workflows/`.
-- always organize markdown file in /docs folder please
