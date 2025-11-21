@@ -62,8 +62,7 @@ docs/user-stories/
 docs/acceptance-criteria/
 
 # Claude-specific (when testing)
-.claude/
-CLAUDE.md
+# Note: .claude/ and CLAUDE.md are now tracked as they contain ClaudeKit PM configuration
 
 # Misc
 .cache/
