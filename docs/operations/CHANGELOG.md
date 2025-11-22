@@ -13,6 +13,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Plugin system for custom commands
 - Interactive tutorial mode
 
+## [0.2.1] - 2025-01-22
+
+### Changed
+- **Modernized CLI Dependencies**
+  - Replaced `commander` with `cac` (lighter CLI framework, 3.5KB vs 50KB)
+  - Replaced `chalk` with `picocolors` (14x smaller, faster terminal colors)
+  - Replaced `prompts` with `@clack/prompts` (better UX, cleaner output)
+  - Added `fs-extra` for enhanced file operations
+  - Added `zod` for runtime schema validation
+  - Added `keytar` for secure OS keychain credential storage
+  - Added `ignore` for .gitignore pattern matching
+  - Added `extract-zip` and `tar` for archive extraction
+- **Improved Completion Output**
+  - Replaced ASCII box with `@clack/prompts` `note()` styling
+  - Cleaner, consistent output across all commands (init, update, uninstall)
+  - Fixed broken box characters caused by ANSI escape code width calculations
+
+### Fixed
+- Terminal output rendering issues with colored text in boxes
+- Test mocks updated for new @clack/prompts functions
+
 ## [0.2.0] - 2025-01-22
 
 ### Added
@@ -215,6 +236,7 @@ See [INSTALLATION.md](./INSTALLATION.md) for detailed setup instructions.
 
 | Version | Date | Highlights |
 |---------|------|------------|
+| 0.2.1 | 2025-01-22 | Modernized dependencies (cac, picocolors, @clack/prompts), improved output |
 | 0.2.0 | 2025-01-22 | New commands (versions, uninstall), progress indicators, simplified API config |
 | 0.1.0 | 2024-01-20 | Initial release with init, update, doctor, config commands |
 

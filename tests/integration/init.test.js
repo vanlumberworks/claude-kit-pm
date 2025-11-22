@@ -20,7 +20,9 @@ jest.mock('../../lib/utils/prompts', () => ({
   promptForAPIKeys: jest.fn().mockResolvedValue({
     geminiKey: 'test_gemini_key'
   }),
-  confirmAction: jest.fn().mockResolvedValue(true)
+  confirmAction: jest.fn().mockResolvedValue(true),
+  note: jest.fn(),
+  outro: jest.fn()
 }));
 
 // Mock logger to prevent progress bar issues in tests

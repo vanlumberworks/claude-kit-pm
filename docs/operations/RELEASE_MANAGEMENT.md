@@ -256,6 +256,20 @@ Track all releases with context:
 
 ## Version History Log
 
+### v0.2.1 (2025-01-22)
+- **Type**: Patch Release
+- **Focus**: Dependency modernization & output improvements
+- **Key Changes**:
+  - Replaced `commander` with `cac` (lighter CLI framework)
+  - Replaced `chalk` with `picocolors` (14x smaller)
+  - Replaced `prompts` with `@clack/prompts` (better UX)
+  - Added `zod`, `keytar`, `fs-extra`, `extract-zip`, `tar`, `ignore`
+  - Fixed completion output using @clack/prompts styling
+- **Breaking**: None
+- **npm**: https://www.npmjs.com/package/pm-kit-cli/v/0.2.1
+- **Tag**: `v0.2.1`
+- **Released By**: Claude + Human
+
 ### v0.2.0 (2025-01-22)
 - **Type**: Minor Release
 - **Focus**: CLI enhancements & simplified onboarding

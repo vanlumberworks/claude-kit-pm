@@ -5,8 +5,8 @@
  * CLI installer and manager for Product Management framework
  */
 
-const { program } = require('commander');
-const chalk = require('chalk');
+const { cac } = require('cac');
+const pc = require('picocolors');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
@@ -103,41 +103,34 @@ async function showVersionWithUpdateCheck() {
 
   if (latestVersion) {
     console.log('');
-    console.log(chalk.yellow('┌────────────────────────────────────────────────┐'));
-    console.log(chalk.yellow('│') + chalk.white('  Update available! ') + chalk.gray(packageJson.version) + chalk.white(' → ') + chalk.green(latestVersion) + chalk.yellow('          │'));
-    console.log(chalk.yellow('│') + chalk.white('  Run ') + chalk.cyan('npm update -g pm-kit-cli') + chalk.white(' to update  ') + chalk.yellow('│'));
-    console.log(chalk.yellow('└────────────────────────────────────────────────┘'));
+    console.log(pc.yellow('┌────────────────────────────────────────────────┐'));
+    console.log(pc.yellow('│') + '  Update available! ' + pc.gray(packageJson.version) + ' → ' + pc.green(latestVersion) + '          ' + pc.yellow('│'));
+    console.log(pc.yellow('│') + '  Run ' + pc.cyan('npm update -g pm-kit-cli') + ' to update  ' + pc.yellow('│'));
+    console.log(pc.yellow('└────────────────────────────────────────────────┘'));
   }
 }
 
-// Configure CLI
-program
-  .name('pm-kit')
-  .description('ClaudeKit PM - Product Management Framework CLI')
-  .version(packageJson.version, '-v, --version', 'Display version number')
-  .helpOption('-h, --help', 'Display help information');
-
-// Override version action to include update check
-program.on('option:version', async () => {
-  await showVersionWithUpdateCheck();
-  process.exit(0);
-});
+// Create CLI instance
+const cli = cac('pm-kit');
 
 // Init command
-program
-  .command('init')
-  .description('Initialize PM Kit in current directory')
+cli
+  .command('init', 'Initialize PM Kit in current directory')
   .option('--reset-token', 'Reset GitHub authentication token')
   .option('--reconfigure-api', 'Reconfigure API keys only')
   .option('--minimal', 'Install minimal set of workflows')
-  .option('--full', 'Install all workflows (default)', true)
-  .option('--exclude <patterns...>', 'Exclude specific files/directories')
+  .option('--full', 'Install all workflows (default)')
+  .option('--exclude <patterns>', 'Exclude specific files/directories')
   .option('-g, --global', 'Install to user-wide ~/.claude directory')
   .option('--fresh', 'Clean install - remove existing before installing')
   .option('--force', 'Force overwrite without confirmation')
   .option('--no-animation', 'Skip the animated logo on startup')
   .action(async (options) => {
     try {
+      // Convert exclude string to array if provided
+      if (options.exclude && typeof options.exclude === 'string') {
+        options.exclude = options.exclude.split(',').map(p => p.trim());
+      }
       await initCommand(options);
     } catch (error) {
       handleError(error, 'init');
@@ -146,16 +139,18 @@ program
   });
 
 // Update command
-program
-  .command('update')
-  .description('Update PM Kit to latest version')
+cli
+  .command('update', 'Update PM Kit to latest version')
   .option('--force', 'Force update, ignore local changes')
   .option('--dry-run', 'Show what would be updated without making changes')
-  .option('--exclude <patterns...>', 'Additional exclusion patterns')
+  .option('--exclude <patterns>', 'Additional exclusion patterns')
   .option('--backup', 'Create backup before updating')
   .option('--version <version>', 'Update to specific version')
   .action(async (options) => {
     try {
+      if (options.exclude && typeof options.exclude === 'string') {
+        options.exclude = options.exclude.split(',').map(p => p.trim());
+      }
       await updateCommand(options);
     } catch (error) {
       handleError(error, 'update');
@@ -164,9 +159,8 @@ program
   });
 
 // Doctor command
-program
-  .command('doctor')
-  .description('Run diagnostics on PM Kit installation')
+cli
+  .command('doctor', 'Run diagnostics on PM Kit installation')
   .option('--verbose', 'Show detailed diagnostic information')
   .option('--fix', 'Attempt to fix issues automatically')
   .option('--json', 'Output results as JSON')
@@ -180,9 +174,8 @@ program
   });
 
 // Config command
-program
-  .command('config <action> [key] [value]')
-  .description('Manage PM Kit configuration')
+cli
+  .command('config <action> [key] [value]', 'Manage PM Kit configuration')
   .action(async (action, key, value, options) => {
     try {
       await configCommand(action, key, value, options);
@@ -193,15 +186,13 @@ program
   });
 
 // Versions command
-program
-  .command('versions')
-  .description('List available PM Kit versions')
-  .option('--limit <number>', 'Maximum versions to show', '30')
+cli
+  .command('versions', 'List available PM Kit versions')
+  .option('--limit <number>', 'Maximum versions to show', { default: 30 })
   .option('--all', 'Include prereleases and drafts')
   .option('--verbose', 'Show release descriptions')
   .action(async (options) => {
     try {
-      // Parse limit as integer
       options.limit = parseInt(options.limit, 10);
       await versionsCommand(options);
     } catch (error) {
@@ -211,9 +202,8 @@ program
   });
 
 // Uninstall command
-program
-  .command('uninstall')
-  .description('Remove PM Kit installation')
+cli
+  .command('uninstall', 'Remove PM Kit installation')
   .option('-y, --yes', 'Skip confirmation prompts')
   .action(async (options) => {
     try {
@@ -224,57 +214,42 @@ program
     }
   });
 
-// Custom help
-program.addHelpText('after', `
+// Version
+cli.version(packageJson.version);
+cli.help();
 
-Examples:
-  $ pm-kit init                          Initialize PM Kit
-  $ pm-kit init --minimal                Install minimal workflows
-  $ pm-kit init --global                 Install to user-wide ~/.claude
-  $ pm-kit update                        Update to latest version
-  $ pm-kit update --dry-run              Preview updates
-  $ pm-kit update --version v1.2.0       Update to specific version
-  $ pm-kit versions                      List available versions
-  $ pm-kit versions --all                Include prereleases
-  $ pm-kit uninstall                     Remove PM Kit installation
-  $ pm-kit doctor                        Run diagnostics
-  $ pm-kit doctor --fix                  Auto-fix issues
-  $ pm-kit config list                   Show configuration
-  $ pm-kit config set github-token TOKEN Set GitHub token
-
-Documentation:
-  ${chalk.cyan('https://github.com/your-org/claude-kit-pm')}
-
-Support:
-  ${chalk.cyan('https://github.com/your-org/claude-kit-pm/issues')}
-`);
-
-// Handle unknown commands
-program.on('command:*', (operands) => {
-  console.error(chalk.red(`\nError: Unknown command '${operands[0]}'`));
-  console.log('\nRun', chalk.cyan('pm-kit --help'), 'for available commands\n');
+// Add custom help text
+cli.on('command:*', () => {
+  console.error(pc.red(`\nError: Unknown command`));
+  console.log('\nRun', pc.cyan('pm-kit --help'), 'for available commands\n');
   process.exit(1);
 });
 
 // Global error handler
 process.on('uncaughtException', (error) => {
-  console.error(chalk.red('\n✖ Unexpected error occurred:'));
+  console.error(pc.red('\n✖ Unexpected error occurred:'));
   console.error(error.message);
   console.error('\nPlease report this issue at:');
-  console.error(chalk.cyan('https://github.com/your-org/claude-kit-pm/issues\n'));
+  console.error(pc.cyan('https://github.com/your-org/claude-kit-pm/issues\n'));
   process.exit(1);
 });
 
 process.on('unhandledRejection', (reason, promise) => {
-  console.error(chalk.red('\n✖ Unhandled promise rejection:'));
+  console.error(pc.red('\n✖ Unhandled promise rejection:'));
   console.error(reason);
   process.exit(1);
 });
 
-// Parse arguments and execute
-program.parse(process.argv);
+// Handle --version flag manually for update check
+const args = process.argv.slice(2);
+if (args.includes('-v') || args.includes('--version')) {
+  showVersionWithUpdateCheck().then(() => process.exit(0));
+} else {
+  // Parse arguments and execute
+  cli.parse();
 
-// Show help if no arguments provided
-if (!process.argv.slice(2).length) {
-  program.outputHelp();
+  // Show help if no arguments provided
+  if (!args.length) {
+    cli.outputHelp();
+  }
 }
