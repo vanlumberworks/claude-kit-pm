@@ -11,14 +11,15 @@
       "WebFetch(domain:github.com)",
       "Bash(pnpm test:*)",
       "Bash(pnpm add:*)",
-      "Bash(npx oh-my-logo:*)",
-      "Bash(pnpm lint:*)",
-      "Bash(git push:*)"
+      "Bash(npx oh-my-logo:*)"
     ]
   },
   "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "playwright",
-    "context7"
+    "context7",
+    "brave-search",
+    "perplexity",
+    "gemini"
   ]
 }
