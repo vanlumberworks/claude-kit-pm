@@ -12,8 +12,8 @@ Claude Kit PM is a Product Manager toolkit distributed as a CLI installer that i
 
 - Node.js installed (v16+)
 - GitHub Personal Access Token with repo access
-- Brave Search API Key (or other search service API key)
 - Claude CLI installed (from https://claude.ai/code)
+- Gemini API Key (optional - for multi-modal analysis)
 
 ---
 
@@ -72,12 +72,9 @@ pm-kit init
      - Template files
      - Example docs
 
-3. **API Key Configuration:**
-   - Prompts for Brave Search API Key
-   - Optionally prompts for additional API keys:
-     - Perplexity API Key
-     - Gemini API Key
-     - Other future integrations
+3. **API Key Configuration (Optional):**
+   - Optionally prompts for Gemini API Key (press Enter to skip)
+   - All API keys are optional - can be configured later
    - Saves credentials to `.mcp.json`
 
 4. **Success Message:**
@@ -202,8 +199,7 @@ pm-kit doctor
    - ✔️ `.mcp.json` exists
 
 2. **API Configuration:**
-   - ✔️ Brave Search Key configured and valid
-   - ⚠️ Perplexity Key not configured (optional)
+   - ℹ️ Gemini API Key not configured (optional)
    - ✔️ GitHub Token valid
 
 3. **Claude CLI:**
@@ -221,12 +217,13 @@ Running diagnostics...
 
 ✔️  CLAUDE.md found
 ✔️  .claude/ directory present (12 commands, 5 skills)
-✔️  .mcp.json: Brave Search Key OK
+✔️  .mcp.json: Valid
+ℹ️  Gemini API Key: Not configured (optional)
 ✔️  GitHub Token: Valid (expires in 45 days)
 ⚠️  Claude CLI not detected in PATH
     Install from: https://claude.ai/code
 
-1 warning found. Your kit is mostly functional.
+1 warning found. Your kit is functional.
 ```
 
 ---
@@ -262,11 +259,11 @@ Stores API credentials and MCP server configuration:
 ```json
 {
   "mcpServers": {
-    "brave-search": {
+    "gemini": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-brave-search"],
+      "args": ["-y", "@anthropic-ai/claude-code-mcp-server-gemini"],
       "env": {
-        "BRAVE_API_KEY": "your-brave-api-key-here"
+        "GEMINI_API_KEY": "your-gemini-api-key-here"
       }
     }
   }

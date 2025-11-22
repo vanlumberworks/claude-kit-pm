@@ -181,8 +181,7 @@ File Structure
 
 API Configuration
 ✓  MCP Configuration: Valid
-✓  brave-search: Server configured
-⚠  perplexity: API key not set (optional)
+✓  gemini: Server configured (optional)
 
 Claude CLI
 ⚠  Claude CLI: Not found (recommended but not required)
@@ -193,7 +192,6 @@ Permissions
 
 Connectivity
 ✓  GitHub API: Reachable
-✓  Brave Search API: Reachable
 
 Summary
 ✓ All checks passed!
@@ -233,7 +231,7 @@ pm-kit config get githubToken
 pm-kit config set githubToken ghp_new_token_here
 
 # Set API key (special handling)
-pm-kit config set braveApiKey new_key_here
+pm-kit config set geminiApiKey new_key_here
 
 # Delete configuration
 pm-kit config delete customSetting
@@ -246,8 +244,6 @@ pm-kit config reset
 
 Global keys (prefix with `global.` to save globally):
 - `githubToken` - GitHub Personal Access Token
-- `braveApiKey` - Brave Search API key
-- `perplexityApiKey` - Perplexity API key (optional)
 - `geminiApiKey` - Google Gemini API key (optional)
 - Custom keys - Any other settings
 
@@ -283,9 +279,7 @@ The CLI respects these environment variables:
 # GitHub authentication
 GITHUB_TOKEN=ghp_your_token_here
 
-# API keys
-BRAVE_API_KEY=your_key_here
-PERPLEXITY_API_KEY=your_key_here
+# API keys (optional)
 GEMINI_API_KEY=your_key_here
 
 # Custom repository (for forks)
@@ -416,7 +410,7 @@ pm-kit init --force
 pm-kit config list
 
 # Update specific API key
-pm-kit config set braveApiKey new_key_here
+pm-kit config set geminiApiKey new_key_here
 
 # Remove old key
 pm-kit config delete oldKey
@@ -443,7 +437,6 @@ pm-kit update
 ```bash
 # Non-interactive initialization
 export GITHUB_TOKEN=ghp_token
-export BRAVE_API_KEY=brave_key
 
 pm-kit init --force
 

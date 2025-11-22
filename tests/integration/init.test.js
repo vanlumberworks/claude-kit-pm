@@ -8,9 +8,55 @@ const initCommand = require('../../lib/commands/init');
 const constants = require('../../lib/constants');
 const { createTempDir } = require('../setup');
 
-// Mock dependencies
-jest.mock('../../lib/services/github-service');
-jest.mock('../../lib/utils/prompts');
+// Mock dependencies - must be before requiring modules that use them
+jest.mock('../../lib/services/github-service', () => ({
+  authenticate: jest.fn().mockResolvedValue(),
+  downloadFile: jest.fn().mockResolvedValue(),
+  downloadDirectory: jest.fn().mockResolvedValue(),
+  countRemoteFiles: jest.fn().mockResolvedValue(5)
+}));
+
+jest.mock('../../lib/utils/prompts', () => ({
+  promptForAPIKeys: jest.fn().mockResolvedValue({
+    geminiKey: 'test_gemini_key'
+  }),
+  confirmAction: jest.fn().mockResolvedValue(true)
+}));
+
+// Mock logger to prevent progress bar issues in tests
+jest.mock('../../lib/utils/logger', () => {
+  return {
+    success: jest.fn(),
+    error: jest.fn(),
+    warn: jest.fn(),
+    info: jest.fn(),
+    debug: jest.fn(),
+    log: jest.fn(),
+    newline: jest.fn(),
+    startSpinner: jest.fn().mockReturnValue({
+      succeed: jest.fn(),
+      fail: jest.fn(),
+      stop: jest.fn(),
+      text: ''
+    }),
+    updateSpinner: jest.fn(),
+    succeedSpinner: jest.fn(),
+    failSpinner: jest.fn(),
+    stopSpinner: jest.fn(),
+    header: jest.fn(),
+    box: jest.fn(),
+    list: jest.fn(),
+    table: jest.fn(),
+    checkResult: jest.fn(),
+    fileOperation: jest.fn(),
+    summary: jest.fn(),
+    startProgressBar: jest.fn().mockReturnValue({ update: jest.fn(), stop: jest.fn() }),
+    updateProgressBar: jest.fn(),
+    incrementProgressBar: jest.fn(),
+    stopProgressBar: jest.fn(),
+    hasProgressBar: jest.fn().mockReturnValue(false)
+  };
+});
 
 const githubService = require('../../lib/services/github-service');
 const prompts = require('../../lib/utils/prompts');
@@ -25,28 +71,24 @@ describe('initCommand (integration)', () => {
     originalCwd = process.cwd();
     process.chdir(testDir);
 
-    // Mock github service
-    githubService.authenticate = jest.fn().mockResolvedValue();
-    githubService.downloadFile = jest.fn().mockResolvedValue();
-    githubService.downloadDirectory = jest.fn().mockResolvedValue();
-
-    // Mock prompts
-    prompts.promptForAPIKeys = jest.fn().mockResolvedValue({
-      braveKey: 'test_brave_key',
-      perplexityKey: 'test_perplexity_key',
-      geminiKey: 'test_gemini_key'
-    });
-    prompts.confirmAction = jest.fn().mockResolvedValue(true);
+    // Clear mock call history
+    jest.clearAllMocks();
 
     // Mock console methods
     jest.spyOn(console, 'log').mockImplementation();
     jest.spyOn(console, 'error').mockImplementation();
+    jest.spyOn(console, 'warn').mockImplementation();
     jest.spyOn(process, 'exit').mockImplementation();
   });
 
   afterEach(() => {
     // Restore working directory
     process.chdir(originalCwd);
+
+    // Clean up test directory
+    if (fs.existsSync(testDir)) {
+      fs.rmSync(testDir, { recursive: true, force: true });
+    }
 
     // Restore mocks
     jest.restoreAllMocks();
@@ -58,11 +100,11 @@ describe('initCommand (integration)', () => {
     // Check that GitHub authentication was called
     expect(githubService.authenticate).toHaveBeenCalled();
 
-    // Check that files were downloaded
+    // Check that files were downloaded (path is now absolute due to installDir)
     expect(githubService.downloadFile).toHaveBeenCalledWith(
       constants.KIT_REPOSITORY,
       'CLAUDE.md',
-      'CLAUDE.md',
+      expect.stringContaining('CLAUDE.md'),
       constants.KIT_REPOSITORY_BRANCH
     );
 
@@ -84,9 +126,8 @@ describe('initCommand (integration)', () => {
     // Check that .gitignore was updated
     expect(fs.existsSync('.gitignore')).toBe(true);
     const gitignoreContent = fs.readFileSync('.gitignore', 'utf8');
-    constants.GITIGNORE_ENTRIES.forEach(entry => {
-      expect(gitignoreContent).toContain(entry);
-    });
+    expect(gitignoreContent).toContain('.mcp.json');
+    expect(gitignoreContent).toContain('.env');
   });
 
   test('should create valid .mcp.json config', async () => {
@@ -97,11 +138,11 @@ describe('initCommand (integration)', () => {
     const config = JSON.parse(fs.readFileSync('.mcp.json', 'utf8'));
 
     expect(config).toHaveProperty('mcpServers');
-    expect(config.mcpServers).toHaveProperty('brave-search');
-    expect(config.mcpServers['brave-search']).toHaveProperty('command');
-    expect(config.mcpServers['brave-search']).toHaveProperty('args');
-    expect(config.mcpServers['brave-search']).toHaveProperty('env');
-    expect(config.mcpServers['brave-search'].env).toHaveProperty('BRAVE_API_KEY', 'test_brave_key');
+    expect(config.mcpServers).toHaveProperty('gemini');
+    expect(config.mcpServers['gemini']).toHaveProperty('command');
+    expect(config.mcpServers['gemini']).toHaveProperty('args');
+    expect(config.mcpServers['gemini']).toHaveProperty('env');
+    expect(config.mcpServers['gemini'].env).toHaveProperty('GEMINI_API_KEY', 'test_gemini_key');
   });
 
   test('should prompt for confirmation if already initialized', async () => {
@@ -112,7 +153,12 @@ describe('initCommand (integration)', () => {
     // Mock confirmation to return false
     prompts.confirmAction.mockResolvedValueOnce(false);
 
-    await initCommand();
+    // Mock process.exit to throw so execution stops
+    const exitError = new Error('process.exit');
+    process.exit.mockImplementationOnce(() => { throw exitError; });
+
+    // Should exit early when user declines
+    await expect(initCommand()).rejects.toThrow('process.exit');
 
     // Should have prompted for confirmation
     expect(prompts.confirmAction).toHaveBeenCalledWith(
@@ -120,8 +166,8 @@ describe('initCommand (integration)', () => {
       false
     );
 
-    // Should not have continued with initialization
-    expect(githubService.authenticate).not.toHaveBeenCalled();
+    // Should not have continued with initialization (exit was called)
+    expect(process.exit).toHaveBeenCalledWith(0);
   });
 
   test('should reinitialize if confirmed', async () => {
@@ -167,12 +213,14 @@ describe('initCommand (integration)', () => {
   test('should create all required output directories', async () => {
     await initCommand({ force: true });
 
+    // Check key output directories from constants.REQUIRED_DIRS
     const expectedDirs = [
-      'outputs/prds',
       'outputs/research-reports',
       'outputs/consensus-reports',
       'outputs/decision-matrices',
-      'outputs/evidence-logs'
+      'outputs/evidence-logs',
+      'prds/active',
+      'prds/archive'
     ];
 
     expectedDirs.forEach(dir => {

@@ -1,6 +1,6 @@
 {
   "name": "pm-kit-cli",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Product Manager Kit CLI installer for Claude - AI-assisted PM workflows",
   "main": "lib/index.js",
   "bin": {
@@ -45,13 +45,15 @@
   },
   "dependencies": {
     "@octokit/rest": "^20.1.1",
+    "boxen": "^5.1.2",
     "chalk": "^4.1.2",
+    "cli-progress": "^3.12.0",
     "commander": "^11.1.0",
-    "prompts": "^2.4.2",
     "minimatch": "^9.0.5",
     "node-fetch": "^2.7.0",
+    "oh-my-logo": "^0.4.0",
     "ora": "^5.4.1",
-    "boxen": "^5.1.2"
+    "prompts": "^2.4.2"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",

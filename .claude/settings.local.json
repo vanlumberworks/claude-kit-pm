@@ -6,7 +6,12 @@
       "Bash(node bin/pm-kit.js:*)",
       "Bash(pnpm install:*)",
       "Bash(ls:*)",
-      "Bash(git mv:*)"
+      "Bash(git mv:*)",
+      "Bash(mkdir:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(pnpm test:*)",
+      "Bash(pnpm add:*)",
+      "Bash(npx oh-my-logo:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

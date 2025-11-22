@@ -119,33 +119,18 @@ You need a GitHub Personal Access Token to download the PM framework files.
 
 **Save it somewhere safe** - you'll need it in the next step.
 
-### Step 4: Get Your API Keys
+### Step 4: Get Your API Keys (Optional)
 
-You need a Brave Search API key (required). Others are optional but recommended.
+All API keys are optional - you can skip this step and configure later!
 
-#### Brave Search (Required - Free Tier Available)
+#### Google Gemini (Optional - For Multi-Modal Analysis)
 
-1. Go to: https://brave.com/search/api/
-2. Click **"Get Started"** or **"Sign Up"**
-3. Choose **Free tier** (2,000 queries/month)
-4. Confirm your email
-5. Copy your API key - looks like: `BSAxxxxxxxxxxxxxxxx`
-
-#### Perplexity (Optional)
-
-1. Go to: https://www.perplexity.ai/settings/api
-2. Sign in or create account
-3. Click **"Generate API Key"**
-4. Copy your key - looks like: `pplx-xxxxxxxxxxxxxxxx`
-
-#### Google Gemini (Optional)
-
-1. Go to: https://makersuite.google.com/app/apikey
+1. Go to: https://ai.google.dev/
 2. Sign in with Google account
 3. Click **"Create API key"**
 4. Copy your key - looks like: `AIzaxxxxxxxxxxxxxxxx`
 
-✅ **Checkpoint**: You should have at least your GitHub token and Brave API key saved somewhere.
+✅ **Checkpoint**: You have your GitHub token ready. API keys can be added later via `pm-kit config`.
 
 ---
 
@@ -207,11 +192,9 @@ Paste your GitHub token (the one starting with `ghp_`) and press Enter.
 ✓ Downloaded .claude/commands/ (10 files)
 ```
 
-**4. API Key Configuration**
+**4. API Key Configuration (Optional)**
 ```
-? Brave Search API Key: [paste your key]
-? Perplexity API Key (optional): [paste or press Enter to skip]
-? Google Gemini API Key (optional): [paste or press Enter to skip]
+? Gemini API Key (press Enter to skip): [paste or press Enter to skip]
 ```
 
 **5. Final Setup** (automatic)
@@ -265,7 +248,7 @@ File Structure
 
 API Configuration
 ✓  MCP Configuration: Valid
-✓  brave-search: Server configured
+ℹ  gemini: Not configured (optional)
 
 Summary
 ✓ All checks passed! ✨
@@ -618,14 +601,14 @@ pnpm install -g pm-kit-cli
 sudo npm install -g pm-kit-cli
 ```
 
-### "Brave API key invalid"
+### "API key invalid"
 
 **Problem**: Wrong key or expired
 
 **Fix**:
 ```bash
 # Update your API key
-pm-kit config set braveApiKey YOUR_NEW_KEY
+pm-kit config set geminiApiKey YOUR_NEW_KEY
 
 # Verify
 pm-kit doctor

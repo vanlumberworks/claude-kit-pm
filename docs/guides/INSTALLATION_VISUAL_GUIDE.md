@@ -175,42 +175,37 @@ After clicking "Generate token":
 
 ## Step 4: Get API Keys
 
-### Brave Search API (Required)
+### Gemini API (Optional)
 
 ```
 ╔════════════════════════════════════════╗
-║        Get Brave Search API Key        ║
+║      Get Gemini API Key (Optional)     ║
 ╚════════════════════════════════════════╝
 
 Browser:
 ┌─────────────────────────────────────────────┐
-│ Brave Search API                            │
-│ https://brave.com/search/api/               │
+│ Google AI Studio                            │
+│ https://ai.google.dev/                      │
 ├─────────────────────────────────────────────┤
 │                                             │
-│  [ Get Started ]                            │
+│  [ Get API Key ]                            │
 │                                             │
-│  Choose your plan:                          │
-│  ○ Free (2,000 queries/month)               │
-│  ○ Pro  ($5/month)                          │
-│                                             │
-│  [ Sign Up ]                                │
+│  Sign in with Google account                │
+│  [ Create API Key ]                         │
 │                                             │
 └─────────────────────────────────────────────┘
 
 After signup:
 ┌─────────────────────────────────────────────┐
 │ Your API Key:                               │
-│ BSAxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx         │
+│ AIzaxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx        │
 │ [ Copy ]                                    │
 └─────────────────────────────────────────────┘
 
-✅ API key copied: BSAxxxx...xxxx
+✅ API key copied (or skip - configure later)
 ```
 
-### Perplexity & Gemini (Optional)
-
-Similar process for optional keys - can skip during init.
+> Note: All API keys are optional. You can skip and configure later with `pm-kit config`.
 
 ## Step 5: Initialize PM Kit
 
@@ -240,10 +235,7 @@ Terminal:
 │ ✓ Downloaded CLAUDE.md              │
 │ ✓ Downloaded .claude/ (32 files)    │
 │                                     │
-│ ? Brave Search API Key:            │
-│ ●●●●●●●●●●●●●●●●●●●●                │
-│                                     │
-│ ? Perplexity API Key (optional):   │
+│ ? Gemini API Key (optional):       │
 │ [Enter to skip]                     │
 │                                     │
 │ ✓ Created .mcp.json                 │
@@ -284,8 +276,7 @@ Terminal:
 │                                     │
 │ API Configuration                   │
 │ ✓ MCP Configuration: Valid          │
-│ ✓ brave-search: Configured          │
-│ ⚠ perplexity: Not configured (opt)  │
+│ ℹ gemini: Not configured (optional) │
 │                                     │
 │ Claude CLI                          │
 │ ✓ Claude CLI: Installed (v1.2.0)    │
@@ -296,7 +287,6 @@ Terminal:
 │                                     │
 │ Connectivity                        │
 │ ✓ GitHub API: Reachable             │
-│ ✓ Brave Search API: Reachable       │
 │                                     │
 │ Summary                             │
 │ ✓ All checks passed! ✨             │

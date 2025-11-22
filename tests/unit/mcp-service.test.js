@@ -11,71 +11,74 @@ const { TEST_DIR, createTempDir } = require('../setup');
 describe('MCPService', () => {
   let testDir;
   let configPath;
+  let originalCwd;
 
   beforeEach(() => {
-    testDir = createTempDir('mcp-service-test');
+    originalCwd = process.cwd();
+    testDir = createTempDir(`mcp-service-test-${Date.now()}`);
     configPath = path.join(testDir, '.mcp.json');
     process.chdir(testDir);
   });
 
+  afterEach(() => {
+    process.chdir(originalCwd);
+    if (fs.existsSync(testDir)) {
+      fs.rmSync(testDir, { recursive: true, force: true });
+    }
+  });
+
   describe('generateConfig', () => {
-    test('should generate valid config with all API keys', () => {
+    test('should generate valid config with Gemini API key', () => {
       const apiKeys = {
-        braveKey: 'brave_test_key',
-        perplexityKey: 'perplexity_test_key',
         geminiKey: 'gemini_test_key'
       };
 
       const config = mcpService.generateConfig(apiKeys);
 
       expect(config).toHaveProperty('mcpServers');
-      expect(config.mcpServers).toHaveProperty('brave-search');
-      expect(config.mcpServers).toHaveProperty('perplexity');
       expect(config.mcpServers).toHaveProperty('gemini');
+      expect(config.mcpServers['gemini'].env.GEMINI_API_KEY).toBe('gemini_test_key');
     });
 
     test('should include correct command and args', () => {
       const apiKeys = {
-        braveKey: 'brave_test_key'
+        geminiKey: 'gemini_test_key'
       };
 
       const config = mcpService.generateConfig(apiKeys);
 
-      expect(config.mcpServers['brave-search'].command).toBe('npx');
-      expect(config.mcpServers['brave-search'].args).toContain('-y');
+      expect(config.mcpServers['gemini'].command).toBe('npx');
+      expect(config.mcpServers['gemini'].args).toContain('-y');
     });
 
     test('should set environment variables correctly', () => {
       const apiKeys = {
-        braveKey: 'brave_test_key',
-        perplexityKey: 'perplexity_test_key'
+        geminiKey: 'gemini_test_key'
       };
 
       const config = mcpService.generateConfig(apiKeys);
 
-      expect(config.mcpServers['brave-search'].env.BRAVE_API_KEY).toBe('brave_test_key');
-      expect(config.mcpServers['perplexity'].env.PERPLEXITY_API_KEY).toBe('perplexity_test_key');
+      expect(config.mcpServers['gemini'].env.GEMINI_API_KEY).toBe('gemini_test_key');
     });
 
-    test('should throw error if required key is missing', () => {
-      const apiKeys = {
-        // Missing braveKey (required)
-        perplexityKey: 'perplexity_test_key'
-      };
-
-      expect(() => mcpService.generateConfig(apiKeys)).toThrow();
-    });
-
-    test('should disable optional servers if key not provided', () => {
-      const apiKeys = {
-        braveKey: 'brave_test_key'
-        // perplexity and gemini not provided
-      };
+    test('should generate config with empty API keys (all optional)', () => {
+      const apiKeys = {};
 
       const config = mcpService.generateConfig(apiKeys);
 
-      expect(config.mcpServers['perplexity']).toHaveProperty('disabled', true);
+      expect(config).toHaveProperty('mcpServers');
       expect(config.mcpServers['gemini']).toHaveProperty('disabled', true);
+    });
+
+    test('should disable optional server if key not provided', () => {
+      const apiKeys = {
+        // gemini not provided
+      };
+
+      const config = mcpService.generateConfig(apiKeys);
+
+      expect(config.mcpServers['gemini']).toHaveProperty('disabled', true);
+      expect(config.mcpServers['gemini'].env.GEMINI_API_KEY).toBe('');
     });
   });
 
@@ -83,10 +86,10 @@ describe('MCPService', () => {
     test('should write config to file', () => {
       const config = {
         mcpServers: {
-          'brave-search': {
+          'gemini': {
             command: 'npx',
-            args: ['-y', '@modelcontextprotocol/server-brave-search'],
-            env: { BRAVE_API_KEY: 'test_key' }
+            args: ['-y', '@anthropic-ai/claude-code-mcp-server-gemini'],
+            env: { GEMINI_API_KEY: 'test_key' }
           }
         }
       };
@@ -99,10 +102,10 @@ describe('MCPService', () => {
     test('should write valid JSON', () => {
       const config = {
         mcpServers: {
-          'brave-search': {
+          'gemini': {
             command: 'npx',
-            args: ['-y', '@modelcontextprotocol/server-brave-search'],
-            env: { BRAVE_API_KEY: 'test_key' }
+            args: ['-y', '@anthropic-ai/claude-code-mcp-server-gemini'],
+            env: { GEMINI_API_KEY: 'test_key' }
           }
         }
       };
@@ -118,10 +121,10 @@ describe('MCPService', () => {
     test('should format JSON with indentation', () => {
       const config = {
         mcpServers: {
-          'brave-search': {
+          'gemini': {
             command: 'npx',
             args: ['-y'],
-            env: { BRAVE_API_KEY: 'test' }
+            env: { GEMINI_API_KEY: 'test' }
           }
         }
       };
@@ -137,10 +140,10 @@ describe('MCPService', () => {
     test('should read config from file', () => {
       const config = {
         mcpServers: {
-          'brave-search': {
+          'gemini': {
             command: 'npx',
             args: ['-y'],
-            env: { BRAVE_API_KEY: 'test_key' }
+            env: { GEMINI_API_KEY: 'test_key' }
           }
         }
       };
@@ -169,10 +172,10 @@ describe('MCPService', () => {
     test('should return true for valid config', () => {
       const config = {
         mcpServers: {
-          'brave-search': {
+          'gemini': {
             command: 'npx',
             args: ['-y'],
-            env: { BRAVE_API_KEY: 'test' }
+            env: { GEMINI_API_KEY: 'test' }
           }
         }
       };
@@ -197,9 +200,9 @@ describe('MCPService', () => {
     test('should return false for missing command', () => {
       const config = {
         mcpServers: {
-          'brave-search': {
+          'gemini': {
             args: ['-y'],
-            env: { BRAVE_API_KEY: 'test' }
+            env: { GEMINI_API_KEY: 'test' }
           }
         }
       };
@@ -210,9 +213,9 @@ describe('MCPService', () => {
     test('should return false for missing args', () => {
       const config = {
         mcpServers: {
-          'brave-search': {
+          'gemini': {
             command: 'npx',
-            env: { BRAVE_API_KEY: 'test' }
+            env: { GEMINI_API_KEY: 'test' }
           }
         }
       };
@@ -223,7 +226,7 @@ describe('MCPService', () => {
     test('should return false for missing env', () => {
       const config = {
         mcpServers: {
-          'brave-search': {
+          'gemini': {
             command: 'npx',
             args: ['-y']
           }
@@ -238,10 +241,10 @@ describe('MCPService', () => {
     beforeEach(() => {
       const config = {
         mcpServers: {
-          'brave-search': {
+          'gemini': {
             command: 'npx',
             args: ['-y'],
-            env: { BRAVE_API_KEY: 'old_key' },
+            env: { GEMINI_API_KEY: 'old_key' },
             disabled: false
           }
         }
@@ -251,19 +254,19 @@ describe('MCPService', () => {
     });
 
     test('should update API key', () => {
-      mcpService.updateAPIKey('brave-search', 'new_key', configPath);
+      mcpService.updateAPIKey('gemini', 'new_key', configPath);
 
       const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-      expect(config.mcpServers['brave-search'].env.BRAVE_API_KEY).toBe('new_key');
+      expect(config.mcpServers['gemini'].env.GEMINI_API_KEY).toBe('new_key');
     });
 
     test('should enable disabled server when updating key', () => {
       const config = {
         mcpServers: {
-          'brave-search': {
+          'gemini': {
             command: 'npx',
             args: ['-y'],
-            env: { BRAVE_API_KEY: '' },
+            env: { GEMINI_API_KEY: '' },
             disabled: true
           }
         }
@@ -271,16 +274,16 @@ describe('MCPService', () => {
 
       fs.writeFileSync(configPath, JSON.stringify(config));
 
-      mcpService.updateAPIKey('brave-search', 'new_key', configPath);
+      mcpService.updateAPIKey('gemini', 'new_key', configPath);
 
       const updatedConfig = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-      expect(updatedConfig.mcpServers['brave-search'].disabled).toBeUndefined();
+      expect(updatedConfig.mcpServers['gemini'].disabled).toBeUndefined();
     });
 
     test('should throw error if config file not found', () => {
       fs.unlinkSync(configPath);
 
-      expect(() => mcpService.updateAPIKey('brave-search', 'new_key', configPath)).toThrow();
+      expect(() => mcpService.updateAPIKey('gemini', 'new_key', configPath)).toThrow();
     });
 
     test('should throw error for unknown server', () => {
@@ -292,10 +295,10 @@ describe('MCPService', () => {
     test('should return success for configured server with API key', async () => {
       const config = {
         mcpServers: {
-          'brave-search': {
+          'gemini': {
             command: 'npx',
             args: ['-y'],
-            env: { BRAVE_API_KEY: 'test_key' },
+            env: { GEMINI_API_KEY: 'test_key' },
             disabled: false
           }
         }
@@ -303,7 +306,7 @@ describe('MCPService', () => {
 
       fs.writeFileSync(configPath, JSON.stringify(config));
 
-      const result = await mcpService.testServer('brave-search');
+      const result = await mcpService.testServer('gemini');
 
       expect(result.success).toBe(true);
     });
@@ -311,10 +314,10 @@ describe('MCPService', () => {
     test('should return failure for disabled server', async () => {
       const config = {
         mcpServers: {
-          'brave-search': {
+          'gemini': {
             command: 'npx',
             args: ['-y'],
-            env: { BRAVE_API_KEY: 'test_key' },
+            env: { GEMINI_API_KEY: 'test_key' },
             disabled: true
           }
         }
@@ -322,7 +325,7 @@ describe('MCPService', () => {
 
       fs.writeFileSync(configPath, JSON.stringify(config));
 
-      const result = await mcpService.testServer('brave-search');
+      const result = await mcpService.testServer('gemini');
 
       expect(result.success).toBe(false);
       expect(result.message).toContain('disabled');
@@ -331,10 +334,10 @@ describe('MCPService', () => {
     test('should return failure for missing API key', async () => {
       const config = {
         mcpServers: {
-          'brave-search': {
+          'gemini': {
             command: 'npx',
             args: ['-y'],
-            env: { BRAVE_API_KEY: '' },
+            env: { GEMINI_API_KEY: '' },
             disabled: false
           }
         }
@@ -342,7 +345,7 @@ describe('MCPService', () => {
 
       fs.writeFileSync(configPath, JSON.stringify(config));
 
-      const result = await mcpService.testServer('brave-search');
+      const result = await mcpService.testServer('gemini');
 
       expect(result.success).toBe(false);
       expect(result.message).toContain('not set');
@@ -351,7 +354,7 @@ describe('MCPService', () => {
     test('should return failure for non-configured server', async () => {
       fs.writeFileSync(configPath, JSON.stringify({ mcpServers: {} }));
 
-      const result = await mcpService.testServer('brave-search');
+      const result = await mcpService.testServer('gemini');
 
       expect(result.success).toBe(false);
       expect(result.message).toContain('not configured');

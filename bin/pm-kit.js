@@ -7,6 +7,9 @@
 
 const { program } = require('commander');
 const chalk = require('chalk');
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
 const packageJson = require('../package.json');
 const { handleError } = require('../lib/utils/error-handler');
 
@@ -15,6 +18,97 @@ const initCommand = require('../lib/commands/init');
 const updateCommand = require('../lib/commands/update');
 const doctorCommand = require('../lib/commands/doctor');
 const configCommand = require('../lib/commands/config');
+const versionsCommand = require('../lib/commands/versions');
+const uninstallCommand = require('../lib/commands/uninstall');
+
+// Update notification cache
+const CACHE_DIR = path.join(os.homedir(), '.pm-kit', 'cache');
+const CACHE_FILE = path.join(CACHE_DIR, 'version-check.json');
+const CACHE_TTL = 7 * 24 * 60 * 60 * 1000; // 7 days
+
+/**
+ * Check for newer version (cached)
+ */
+async function checkForUpdates() {
+  // Skip if disabled
+  if (process.env.NO_UPDATE_NOTIFIER === '1') {
+    return null;
+  }
+
+  try {
+    // Check cache
+    let cached = null;
+    if (fs.existsSync(CACHE_FILE)) {
+      const data = JSON.parse(fs.readFileSync(CACHE_FILE, 'utf8'));
+      if (Date.now() - data.timestamp < CACHE_TTL) {
+        cached = data;
+      }
+    }
+
+    if (cached) {
+      return cached.latestVersion !== packageJson.version ? cached.latestVersion : null;
+    }
+
+    // Fetch latest version (async, don't block)
+    const https = require('https');
+    return new Promise((resolve) => {
+      const timeout = setTimeout(() => resolve(null), 3000);
+
+      const req = https.get(
+        'https://registry.npmjs.org/pm-kit-cli/latest',
+        { timeout: 3000 },
+        (res) => {
+          let data = '';
+          res.on('data', chunk => data += chunk);
+          res.on('end', () => {
+            clearTimeout(timeout);
+            try {
+              const pkg = JSON.parse(data);
+              const latestVersion = pkg.version;
+
+              // Save to cache
+              if (!fs.existsSync(CACHE_DIR)) {
+                fs.mkdirSync(CACHE_DIR, { recursive: true });
+              }
+              fs.writeFileSync(CACHE_FILE, JSON.stringify({
+                latestVersion,
+                timestamp: Date.now()
+              }));
+
+              resolve(latestVersion !== packageJson.version ? latestVersion : null);
+            } catch {
+              resolve(null);
+            }
+          });
+        }
+      );
+
+      req.on('error', () => {
+        clearTimeout(timeout);
+        resolve(null);
+      });
+    });
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Show version with update notification
+ */
+async function showVersionWithUpdateCheck() {
+  console.log(`pm-kit-cli v${packageJson.version}`);
+
+  const latestVersion = await checkForUpdates();
+
+  if (latestVersion) {
+    console.log('');
+    console.log(chalk.yellow('┌────────────────────────────────────────────────┐'));
+    console.log(chalk.yellow('│') + chalk.white('  Update available! ') + chalk.gray(packageJson.version) + chalk.white(' → ') + chalk.green(latestVersion) + chalk.yellow('          │'));
+    console.log(chalk.yellow('│') + chalk.white('  Run ') + chalk.cyan('npm update -g pm-kit-cli') + chalk.white(' to update  ') + chalk.yellow('│'));
+    console.log(chalk.yellow('└────────────────────────────────────────────────┘'));
+  }
+}
 
 // Configure CLI
 program
@@ -22,6 +116,12 @@ program
   .description('ClaudeKit PM - Product Management Framework CLI')
   .version(packageJson.version, '-v, --version', 'Display version number')
   .helpOption('-h, --help', 'Display help information');
+
+// Override version action to include update check
+program.on('option:version', async () => {
+  await showVersionWithUpdateCheck();
+  process.exit(0);
+});
 
 // Init command
 program
@@ -32,7 +132,10 @@ program
   .option('--minimal', 'Install minimal set of workflows')
   .option('--full', 'Install all workflows (default)', true)
   .option('--exclude <patterns...>', 'Exclude specific files/directories')
-  .option('--global, -g', 'Use platform-specific user configuration')
+  .option('-g, --global', 'Install to user-wide ~/.claude directory')
+  .option('--fresh', 'Clean install - remove existing before installing')
+  .option('--force', 'Force overwrite without confirmation')
+  .option('--no-animation', 'Skip the animated logo on startup')
   .action(async (options) => {
     try {
       await initCommand(options);
@@ -89,14 +192,51 @@ program
     }
   });
 
+// Versions command
+program
+  .command('versions')
+  .description('List available PM Kit versions')
+  .option('--limit <number>', 'Maximum versions to show', '30')
+  .option('--all', 'Include prereleases and drafts')
+  .option('--verbose', 'Show release descriptions')
+  .action(async (options) => {
+    try {
+      // Parse limit as integer
+      options.limit = parseInt(options.limit, 10);
+      await versionsCommand(options);
+    } catch (error) {
+      handleError(error, 'versions');
+      process.exit(1);
+    }
+  });
+
+// Uninstall command
+program
+  .command('uninstall')
+  .description('Remove PM Kit installation')
+  .option('-y, --yes', 'Skip confirmation prompts')
+  .action(async (options) => {
+    try {
+      await uninstallCommand(options);
+    } catch (error) {
+      handleError(error, 'uninstall');
+      process.exit(1);
+    }
+  });
+
 // Custom help
 program.addHelpText('after', `
 
 Examples:
   $ pm-kit init                          Initialize PM Kit
   $ pm-kit init --minimal                Install minimal workflows
+  $ pm-kit init --global                 Install to user-wide ~/.claude
   $ pm-kit update                        Update to latest version
   $ pm-kit update --dry-run              Preview updates
+  $ pm-kit update --version v1.2.0       Update to specific version
+  $ pm-kit versions                      List available versions
+  $ pm-kit versions --all                Include prereleases
+  $ pm-kit uninstall                     Remove PM Kit installation
   $ pm-kit doctor                        Run diagnostics
   $ pm-kit doctor --fix                  Auto-fix issues
   $ pm-kit config list                   Show configuration

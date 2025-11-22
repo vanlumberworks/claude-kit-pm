@@ -75,28 +75,18 @@ The CLI needs access to download framework files from the private GitHub reposit
 5. Click "Generate token"
 6. **Copy the token** (you won't see it again!)
 
-### 4. Prepare API Keys
+### 4. Prepare API Keys (Optional)
 
-ClaudeKit PM uses MCP servers that require API keys:
-
-#### Required
-
-**Brave Search API** (required for research workflows):
-1. Visit https://brave.com/search/api/
-2. Sign up for free tier
-3. Copy your API key
+ClaudeKit PM can use MCP servers for enhanced capabilities. All API keys are optional - you can skip this step during installation and configure later.
 
 #### Optional
 
-**Perplexity API** (optional for enhanced research):
-1. Visit https://www.perplexity.ai/settings/api
-2. Generate API key
-3. Copy your API key
-
-**Google Gemini API** (optional for AI-powered features):
-1. Visit https://makersuite.google.com/app/apikey
+**Google Gemini API** (optional for multi-modal analysis):
+1. Visit https://ai.google.dev/
 2. Create API key
 3. Copy your API key
+
+You can configure API keys later with `pm-kit config`.
 
 ### 5. Initialize PM Kit
 
@@ -111,7 +101,7 @@ The installer will:
 1. ✅ Check environment (Node.js, Claude CLI)
 2. 🔐 Prompt for GitHub token (if not already saved)
 3. 📥 Download framework files from GitHub
-4. 🔑 Prompt for API keys (Brave, Perplexity, Gemini)
+4. 🔑 Prompt for API keys (optional - press Enter to skip)
 5. ⚙️  Generate `.mcp.json` configuration
 6. 📁 Create output directories
 7. 📝 Update `.gitignore`
@@ -167,8 +157,7 @@ pm-kit init --reset-token
 Update API keys without re-downloading:
 
 ```bash
-pm-kit config set braveApiKey YOUR_NEW_KEY
-pm-kit config set perplexityApiKey YOUR_NEW_KEY
+pm-kit config set geminiApiKey YOUR_NEW_KEY
 ```
 
 ## Post-Installation
@@ -283,12 +272,12 @@ source ~/.zshrc
 
 ### Error: "API key invalid"
 
-**Problem**: Brave Search API key is invalid
+**Problem**: Gemini API key is invalid
 
 **Solution**:
 ```bash
 # Update API key
-pm-kit config set braveApiKey YOUR_NEW_KEY
+pm-kit config set geminiApiKey YOUR_NEW_KEY
 
 # Or reinitialize
 pm-kit init --force
@@ -349,9 +338,7 @@ Optional environment variables:
 # Skip GitHub token prompt (use saved token or gh CLI)
 export GITHUB_TOKEN=your_token_here
 
-# Skip API key prompts
-export BRAVE_API_KEY=your_key_here
-export PERPLEXITY_API_KEY=your_key_here
+# Skip API key prompts (optional)
 export GEMINI_API_KEY=your_key_here
 
 # Custom repository (for forks)

@@ -12,7 +12,60 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Windows support testing
 - Plugin system for custom commands
 - Interactive tutorial mode
-- Auto-update notifications
+
+## [0.2.0] - 2025-01-22
+
+### Added
+- **New Commands**
+  - `pm-kit versions` - List available versions with filtering options
+  - `pm-kit uninstall` - Clean removal with confirmation and backup options
+- **Download Progress Indicators**
+  - Visual progress bar during file downloads
+  - File count tracking with percentage display
+  - Individual filename display during download
+- **Installation Modes**
+  - `--global` flag for global installation to `~/.claude`
+  - `--fresh` flag for clean installation (removes existing files)
+  - `--no-animation` flag to skip logo animation
+- **Update Improvements**
+  - Change detection with SHA-256 hash comparison
+  - `--backup` flag creates timestamped backups before updates
+  - `--version <tag>` flag to update to specific version
+  - `--exclude` flag for custom file exclusions
+  - `--dry-run` mode to preview changes
+- **Retry Logic**
+  - Exponential backoff for GitHub API requests
+  - Automatic retry on network errors (429, 500, 502, 503, 504)
+  - Rate limit handling with retry-after header support
+- **Update Notifications**
+  - Check for updates on `--version` command
+  - Non-intrusive notification when new version available
+- **ASCII Logo Animation**
+  - Beautiful animated logo on startup using oh-my-logo
+  - Graceful fallback for terminals without animation support
+
+### Changed
+- **Simplified API Configuration**
+  - Removed Brave Search API key requirement
+  - Removed Perplexity API key
+  - Gemini API key is now optional (press Enter to skip)
+  - Fast onboarding - no required API keys during installation
+  - Configure API keys later with `pm-kit config`
+- **FileManager Enhancements**
+  - Added `copyFile()` and `copyDirectory()` methods
+  - Added `getStats()` for file metadata
+  - Added hash comparison for change detection
+  - Added `saveDirectoryHashes()` and `loadDirectoryHashes()`
+
+### Fixed
+- Integration tests now properly mock all logger methods
+- MCP service tests updated for new API key structure
+- Progress bar compatibility with spinner operations
+
+### Removed
+- Brave Search MCP server configuration
+- Perplexity MCP server configuration
+- Required API key validation during initialization
 
 ## [0.1.0] - 2024-01-20
 
@@ -162,18 +215,16 @@ See [INSTALLATION.md](./INSTALLATION.md) for detailed setup instructions.
 
 | Version | Date | Highlights |
 |---------|------|------------|
+| 0.2.0 | 2025-01-22 | New commands (versions, uninstall), progress indicators, simplified API config |
 | 0.1.0 | 2024-01-20 | Initial release with init, update, doctor, config commands |
 
 ## Upcoming Releases
 
-### v0.2.0 (Planned - Q2 2024)
+### v0.3.0 (Planned)
 - [ ] Plugin system for custom commands
-- [ ] Auto-update checks
 - [ ] Windows installer
 - [ ] Interactive setup wizard
 - [ ] Usage analytics (opt-in)
-
-### v0.3.0 (Planned - Q3 2024)
 - [ ] Team collaboration features
 - [ ] Shared configuration
 - [ ] Custom workflow templates

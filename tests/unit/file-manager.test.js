@@ -9,10 +9,21 @@ const { TEST_DIR, createTempFile, createTempDir } = require('../setup');
 
 describe('fileManager', () => {
   let testDir;
+  let originalCwd;
 
   beforeEach(() => {
-    testDir = createTempDir('file-manager-test');
+    originalCwd = process.cwd();
+    // Create unique test directory for each test
+    testDir = createTempDir(`file-manager-test-${Date.now()}`);
     process.chdir(testDir);
+  });
+
+  afterEach(() => {
+    process.chdir(originalCwd);
+    // Clean up test directory
+    if (fs.existsSync(testDir)) {
+      fs.rmSync(testDir, { recursive: true, force: true });
+    }
   });
 
   describe('exists', () => {
@@ -129,9 +140,10 @@ describe('fileManager', () => {
   });
 
   describe('isInitialized', () => {
-    test('should return true if CLAUDE.md and .claude directory exist', () => {
+    test('should return true if CLAUDE.md, .claude directory, and .mcp.json exist', () => {
       fs.writeFileSync(path.join(testDir, 'CLAUDE.md'), '# CLAUDE.md');
       fs.mkdirSync(path.join(testDir, '.claude'));
+      fs.writeFileSync(path.join(testDir, '.mcp.json'), '{}');
 
       expect(fileManager.isInitialized()).toBe(true);
     });

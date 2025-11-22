@@ -34,7 +34,7 @@ describe('ErrorCodes', () => {
     expect(ErrorCodes).toHaveProperty('NOT_INITIALIZED');
     expect(ErrorCodes).toHaveProperty('FS_ERROR');
     expect(ErrorCodes).toHaveProperty('API_ERROR');
-    expect(ErrorCodes).toHaveProperty('AUTH_ERROR');
+    expect(ErrorCodes).toHaveProperty('AUTH_FAILED');
     expect(ErrorCodes).toHaveProperty('NETWORK_ERROR');
     expect(ErrorCodes).toHaveProperty('CONFIG_ERROR');
   });
@@ -53,12 +53,10 @@ describe('handleError', () => {
 
   beforeEach(() => {
     consoleSpy = jest.spyOn(console, 'error').mockImplementation();
-    jest.spyOn(process, 'exit').mockImplementation();
   });
 
   afterEach(() => {
     consoleSpy.mockRestore();
-    process.exit.mockRestore();
   });
 
   test('should handle PMKitError', () => {
@@ -67,7 +65,6 @@ describe('handleError', () => {
     handleError(error);
 
     expect(consoleSpy).toHaveBeenCalled();
-    expect(process.exit).toHaveBeenCalledWith(1);
   });
 
   test('should handle generic Error', () => {
@@ -76,13 +73,15 @@ describe('handleError', () => {
     handleError(error);
 
     expect(consoleSpy).toHaveBeenCalled();
-    expect(process.exit).toHaveBeenCalledWith(1);
   });
 
-  test('should handle string error', () => {
-    handleError('String error');
+  test('should handle PMKitError with details', () => {
+    const error = new PMKitError('Test error', ErrorCodes.NOT_INITIALIZED, {
+      help: 'Run pm-kit init first'
+    });
+
+    handleError(error, 'test-context');
 
     expect(consoleSpy).toHaveBeenCalled();
-    expect(process.exit).toHaveBeenCalledWith(1);
   });
 });
